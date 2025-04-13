@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Get Your Badge</title>
+</head>
+<body>
+  <h1>Badge Request Form</h1>
+  <form action="/.netlify/functions/publish_badge" method="POST">
+    <!-- Adjust the badge_class_id value as needed -->
+    <input type="hidden" name="badge_class_id" value="c87tAYNdSVWTlWijeG-HOg" />
+    
+    <label for="email">Email:</label>
+    <input type="email" name="email" id="email" required /><br/><br/>
+    
+    <label for="full_name">Full Name:</label>
+    <input type="text" name="full_name" id="full_name" required /><br/><br/>
+    
+    <button type="submit">Submit</button>
+  </form>
+</body>
+</html>
