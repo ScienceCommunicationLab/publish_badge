@@ -21,3 +21,6 @@ will email the user if this is the first time the badge is created.
 
 If a new course needs to be supported, add another HTML file to the public folder, and then update the script
 with the new course's badge class ID.
+
+## Canvas Badges Credentials    
+The Netlify function's environment should be configured with the Canvas Badges API key.
