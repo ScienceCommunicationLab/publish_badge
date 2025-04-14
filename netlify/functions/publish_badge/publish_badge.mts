@@ -88,21 +88,25 @@ async function sendEmail(to: string, badgeUrl: string): Promise<void> {
  * environment variable GOOGLE_SERVICE_ACCOUNT_JSON.
  */
 async function getGoogleSheetsAccessToken(): Promise<string> {
-  // Parse the JSON stored in the environment variable.
-  const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON || '{}');
-  
+  const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  if (!serviceAccountJson) {
+    throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON not set");
+  }
+  const serviceAccount = JSON.parse(serviceAccountJson);
+
   const auth = new GoogleAuth({
     credentials: serviceAccount,
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
-  
+
   const client = await auth.getClient();
   const tokenResponse = await client.getAccessToken();
-  
+
   if (!tokenResponse || !tokenResponse.token) {
     throw new Error("Failed to obtain Google Sheets access token.");
   }
-  
+
+  console.log(`Obtained Google Sheets token: ${tokenResponse.token.substring(0, 20)}...`);
   return tokenResponse.token;
 }
 
@@ -112,10 +116,10 @@ async function appendToGoogleSheet(fullName: string, email: string, badgeUrl: st
   if (!sheetId) {
     throw new Error("Google Sheet ID is missing from configuration.");
   }
-  
+
   // Generate a valid access token using the service account credentials.
   const googleToken = await getGoogleSheetsAccessToken();
-  
+
   // Adjust the range (e.g., "Sheet1!A:C") according to your sheet.
   const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A:C:append?valueInputOption=USER_ENTERED`;
   const sheetPayload = {
