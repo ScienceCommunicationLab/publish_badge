@@ -4,6 +4,12 @@ This simple Netlify project handles badge generation for students who have compl
 
 The script is extremely simple and relies on free-tier features from Canvas, Netlify and Canvas Badges to function.
 
+The script will :
+- call Canvas Badges via API to generate the badge
+- email the student with the badge URL
+- log a line in an SCL google sheet recording the student and badge information.
+- write progress information to the Netlify logs
+
 ## Instructions
 
 There is an HTML form in the public/ directory for each course in the SCL library of courses on Canvas.
@@ -13,7 +19,5 @@ when the user completes the course).
 The user can then enter their email to have the script generate a badge on Canvas Badges, which on doing so 
 will email the user if this is the first time the badge is created.
 
-The script will also email the user with the badge link, even if the same badge is being requested again (Canvas
-Badges will only send an email the first time the badge is created).
-
-Finally, this script is meant to log a line in an SCL google sheet recording the student and badge information.
+If a new course needs to be supported, add another HTML file to the public folder, and then update the script
+with the new course's badge class ID.
