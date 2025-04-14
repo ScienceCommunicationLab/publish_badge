@@ -1,4 +1,5 @@
 import { Context } from '@netlify/functions';
+import { GoogleAuth } from 'google-auth-library';
 
 // Helper function to sanitize a string by trimming whitespace
 // and removing any characters except letters, numbers, spaces,
@@ -81,13 +82,40 @@ async function sendEmail(to: string, badgeUrl: string): Promise<void> {
   console.log("Email sent successfully via Postmark.");
 }
 
+/**
+ * Helper function to get an OAuth2 access token for Google Sheets using a service account.
+ * It expects the entire JSON service account credentials to be stored in the
+ * environment variable GOOGLE_SERVICE_ACCOUNT_JSON.
+ */
+async function getGoogleSheetsAccessToken(): Promise<string> {
+  // Parse the JSON stored in the environment variable.
+  const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON || '{}');
+  
+  const auth = new GoogleAuth({
+    credentials: serviceAccount,
+    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+  });
+  
+  const client = await auth.getClient();
+  const tokenResponse = await client.getAccessToken();
+  
+  if (!tokenResponse || !tokenResponse.token) {
+    throw new Error("Failed to obtain Google Sheets access token.");
+  }
+  
+  return tokenResponse.token;
+}
+
 // Helper function to append a row to a Google Sheet.
 async function appendToGoogleSheet(fullName: string, email: string, badgeUrl: string): Promise<void> {
   const sheetId = process.env.GOOGLE_SHEET_ID;
-  const googleToken = process.env.GOOGLE_API_TOKEN;
-  if (!sheetId || !googleToken) {
-    throw new Error("Google Sheets configuration is missing.");
+  if (!sheetId) {
+    throw new Error("Google Sheet ID is missing from configuration.");
   }
+  
+  // Generate a valid access token using the service account credentials.
+  const googleToken = await getGoogleSheetsAccessToken();
+  
   // Adjust the range (e.g., "Sheet1!A:C") according to your sheet.
   const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A:C:append?valueInputOption=USER_ENTERED`;
   const sheetPayload = {
@@ -209,7 +237,7 @@ export default async (request: Request, context: Context) => {
   console.log("Badgr credentials loaded.");
 
   // ---------------------------------
-  // Step 1: Obtain the access token
+  // Step 1: Obtain the access token from Badgr
   // ---------------------------------
   const tokenUrl = "https://api.badgr.io/o/token";
   const tokenHeaders = {
