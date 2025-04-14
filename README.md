@@ -23,4 +23,4 @@ If a new course needs to be supported, add another HTML file to the public folde
 with the new course's badge class ID.
 
 ## Canvas Badges Credentials    
-The Netlify function's environment should be configured with the Canvas Badges API key.
+The Netlify function's environment should be configured with the SCL API key for Canvas Badges.
