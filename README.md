@@ -5,10 +5,10 @@ This simple Netlify project handles badge generation for students who have compl
 The script is extremely simple and relies on free-tier features from Canvas, Netlify and Canvas Badges to function.
 
 The script will :
-- call Canvas Badges via API to generate the badge
-- email the student with the badge URL
+- call Canvas Badges via API to generate the badge.
+- email the student with the badge URL.
 - log a line in an SCL google sheet recording the student and badge information.
-- write progress information to the Netlify logs
+- write progress information to the Netlify logs.
 
 ## Instructions
 
