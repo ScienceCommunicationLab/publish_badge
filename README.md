@@ -16,8 +16,9 @@ There is an HTML form in the `public/` directory for each course in the SCL libr
 Each form should appear within an iframe on the completion module of its respective course (this module is only shown
 when the user completes the course).
 
-The user can then enter their email to have the script generate a badge on Canvas Badges, which on doing so 
-will email the user if this is the first time the badge is created.
+The user can then enter their email to have the script generate a badge on Canvas Badges. Canvas Badges should
+ email the user directly if this is the first time the badge is created. The script will also send an email, regardless
+ of whether or not this is the first time the student requested a badge for this course.
 
 If a new course needs to be supported, add another HTML file to the public folder, and then update the script
 with the new course's badge class ID.
