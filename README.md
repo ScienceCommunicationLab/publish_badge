@@ -1,4 +1,4 @@
-# README
+# PUBLISH_BADGE Netlify Function
 
 This simple Netlify project handles badge generation for students who have completed an SCL course on Canvas.
 
