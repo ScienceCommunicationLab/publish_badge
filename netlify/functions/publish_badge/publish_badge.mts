@@ -42,6 +42,69 @@ const badgeClassToAccessCode: { [badgeClassId: string]: string } = {
   "2DowutSbQaaBEKSxg2VNUQ": "ACCESSCODE8", // TSP_SP
 };
 
+// Helper function to send an email via Postmark.
+async function sendEmail(to: string, badgeUrl: string): Promise<void> {
+  const postmarkUrl = "https://api.postmarkapp.com/email";
+  const postmarkToken = process.env.POSTMARK_SERVER_TOKEN;
+  if (!postmarkToken) {
+    throw new Error("Postmark server token is not configured.");
+  }
+  const emailPayload = {
+    From: "courses@ibiology.org", // Adjust as needed.
+    To: to,
+    Subject: "Your Course Completion Badge is Ready!",
+    TextBody: `Congratulations! Your badge is available here: ${badgeUrl}`,
+    HtmlBody: `<p>Congratulations!</p><p>Your badge is available <a href="${badgeUrl}">here</a>.</p>`
+  };
+
+  const postmarkResponse = await fetch(postmarkUrl, {
+    method: "POST",
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      "X-Postmark-Server-Token": postmarkToken,
+    },
+    body: JSON.stringify(emailPayload)
+  });
+
+  if (!postmarkResponse.ok) {
+    const errorText = await postmarkResponse.text();
+    throw new Error(`Postmark API error: ${postmarkResponse.status} - ${errorText}`);
+  }
+  console.log("Email sent successfully via Postmark.");
+}
+
+// Helper function to append a row to a Google Sheet.
+async function appendToGoogleSheet(fullName: string, email: string, badgeUrl: string): Promise<void> {
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const googleToken = process.env.GOOGLE_API_TOKEN;
+  if (!sheetId || !googleToken) {
+    throw new Error("Google Sheets configuration is missing.");
+  }
+  // Adjust the range (e.g., "Sheet1!A:C") according to your sheet.
+  const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A:C:append?valueInputOption=USER_ENTERED`;
+  const sheetPayload = {
+    values: [
+      [fullName, email, badgeUrl]
+    ]
+  };
+
+  const sheetResponse = await fetch(sheetsUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${googleToken}`,
+    },
+    body: JSON.stringify(sheetPayload)
+  });
+
+  if (!sheetResponse.ok) {
+    const errorText = await sheetResponse.text();
+    throw new Error(`Google Sheets API error: ${sheetResponse.status} - ${errorText}`);
+  }
+  console.log("Google Sheet updated successfully.");
+}
+
 export default async (request: Request, context: Context) => {
   console.log("Handler invoked. Starting execution...");
 
@@ -76,6 +139,7 @@ export default async (request: Request, context: Context) => {
   let studentEmail = params.get("email");
   let badgeClassId = params.get("badge_class_id");
   let accessCode = params.get("access_code");
+  let fullName = params.get("full_name");
 
   // Sanitize the inputs.
   if (studentEmail) {
@@ -87,13 +151,16 @@ export default async (request: Request, context: Context) => {
   if (accessCode) {
     accessCode = sanitizeString(accessCode);
   }
+  if (fullName) {
+    fullName = sanitizeString(fullName);
+  }
 
   console.log(
-    `Parsed and sanitized form data: email=${studentEmail}, badge_class_id=${badgeClassId}, access_code=${accessCode}`
+    `Parsed and sanitized form data: email=${studentEmail}, badge_class_id=${badgeClassId}, access_code=${accessCode}, full_name=${fullName}`
   );
 
-  if (!studentEmail  || !badgeClassId || !accessCode) {
-    console.log("Missing email, badge_class_id, or access_code after sanitation.");
+  if (!studentEmail || !badgeClassId || !accessCode || !fullName) {
+    console.log("Missing required form data (email, badge_class_id, access_code, or full_name) after sanitation.");
     return new Response("Missing required form data.", { status: 400 });
   }
 
@@ -219,15 +286,28 @@ export default async (request: Request, context: Context) => {
   }
 
   // ---------------------------------
-  // Step 3: (Deferred) Email the badge link to the student
+  // Step 3: Email the badge link to the student via Postmark
   // ---------------------------------
-  console.log("Email sending is postponed for now.");
-  // If you later implement email sending, call your sendEmail() function here.
-  // await sendEmail(studentEmail, openBadgeId);
+  try {
+    await sendEmail(studentEmail, openBadgeId);
+  } catch (e: any) {
+    console.log(`Error sending email: ${e.message}`);
+    // Optionally, you can handle the email failure differently.
+  }
+
+  // ---------------------------------
+  // Step 4: Add a row to Google Sheet with full_name, email, and badge URL
+  // ---------------------------------
+  try {
+    await appendToGoogleSheet(fullName, studentEmail, openBadgeId);
+  } catch (e: any) {
+    console.log(`Error updating Google Sheet: ${e.message}`);
+    // Optionally, handle the sheet update failure.
+  }
 
   console.log("Handler execution completed successfully.");
   return new Response(
-    "Submission received. Please watch your email for your notification of your badge creation.",
+    "Submission received. Please watch your email for notification of your badge creation.",
     { status: 200 }
   );
 };
