@@ -13,7 +13,7 @@ The script will :
 ## Instructions
 
 There is an HTML form in the `public/` directory for each course in the SCL library of courses on Canvas.
-These forms should appear within an iframe on the completion module of each course (this module is only shown
+Each form should appear within an iframe on the completion module of its respective course (this module is only shown
 when the user completes the course).
 
 The user can then enter their email to have the script generate a badge on Canvas Badges, which on doing so 
