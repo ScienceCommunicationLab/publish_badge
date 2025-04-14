@@ -18,6 +18,13 @@ function isValidEmail(email: string): boolean {
   return emailRegex.test(email);
 }
 
+// New helper function to sanitize full_name and restrict its length.
+function sanitizeFullName(s: string): string {
+  const safeString = sanitizeString(s);
+  // Limit string to a maximum of 100 characters.
+  return safeString.substring(0, 100);
+}
+
 // Mapping from badge class ID to the corresponding Canvas course ID.
 const badgeClassToCourseId: { [badgeClassId: string]: string } = {
   "g_AMm-vOSC6q4_oB2EMwKw": "11346608", // PYSJ_SP
@@ -152,7 +159,8 @@ export default async (request: Request, context: Context) => {
     accessCode = sanitizeString(accessCode);
   }
   if (fullName) {
-    fullName = sanitizeString(fullName);
+    // Use the new helper to both sanitize and limit the input.
+    fullName = sanitizeFullName(fullName);
   }
 
   console.log(

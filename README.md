@@ -24,4 +24,5 @@ If a new course needs to be supported, add another HTML file to the public folde
 with the new course's badge class ID.
 
 ## Credentials    
-The Netlify function's environment should be configured with the SCL API keys for Canvas Badges, Google Sheets and the Postmark API
+The Netlify function's environment should be configured with the SCL API keys for Canvas Badges, Google Sheets and the Postmark API,
+and the ID of the google sheet for recording entires.
