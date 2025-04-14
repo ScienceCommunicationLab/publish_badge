@@ -18,21 +18,46 @@ function isValidEmail(email: string): boolean {
   return emailRegex.test(email);
 }
 
-// List of allowed badge_class_ids.
-const validBadgeClassIds: string[] = [
-  "g_AMm-vOSC6q4_oB2EMwKw",
-  "HNPDHnahQpSJfHMkRFQY4g",
-  "o1tF48xdR0CKvJKgsHi2cw",
-  "c87tAYNdSVWTlWijeG-HOg",
-  "I1Hjg23QT-KoWGAMwh99QA",
-  "Ke0RMbahQVePBuxbjaAUwA",
-  "q4zbMxLMRUetYmFLp023KA",
-  "2DowutSbQaaBEKSxg2VNUQ",
-];
+// Mapping from badge class ID to the corresponding Canvas course ID.
+const badgeClassToCourseId: { [badgeClassId: string]: string } = {
+  "g_AMm-vOSC6q4_oB2EMwKw": "11346608", // PYSJ_SP
+  "HNPDHnahQpSJfHMkRFQY4g": "11346612", // LE_SP
+  "o1tF48xdR0CKvJKgsHi2cw": "1346616",  // BCLS_SP
+  "c87tAYNdSVWTlWijeG-HOg": "11346595", // SYR_SP
+  "I1Hjg23QT-KoWGAMwh99QA": "11229309", // SEPE_SP
+  "Ke0RMbahQVePBuxbjaAUwA": "11176634", // BYRC_SP
+  "q4zbMxLMRUetYmFLp023KA": "11275476", // CPECS_SP
+  "2DowutSbQaaBEKSxg2VNUQ": "11276029", // TSP_SP
+};
+
+// Mapping from badge class ID to the expected access code for that course.
+const badgeClassToAccessCode: { [badgeClassId: string]: string } = {
+  "g_AMm-vOSC6q4_oB2EMwKw": "ACCESSCODE1", // PYSJ_SP
+  "HNPDHnahQpSJfHMkRFQY4g": "LE_628_BG",    // LE_SP
+  "o1tF48xdR0CKvJKgsHi2cw": "ACCESSCODE3", // BCLS_SP
+  "c87tAYNdSVWTlWijeG-HOg": "ACCESSCODE4", // SYR_SP
+  "I1Hjg23QT-KoWGAMwh99QA": "ACCESSCODE5", // SEPE_SP
+  "Ke0RMbahQVePBuxbjaAUwA": "ACCESSCODE6", // BYRC_SP
+  "q4zbMxLMRUetYmFLp023KA": "ACCESSCODE7", // CPECS_SP
+  "2DowutSbQaaBEKSxg2VNUQ": "ACCESSCODE8", // TSP_SP
+};
 
 export default async (request: Request, context: Context) => {
   console.log("Handler invoked. Starting execution...");
 
+  // ---------------------------------
+  // Step 0: Check the request's origin or referer.
+  // Only allow requests coming from https://publishbadge.netlify.app
+  // ---------------------------------
+  const originHeader = request.headers.get("origin") || request.headers.get("referer");
+  if (!originHeader || !originHeader.startsWith("https://publishbadge.netlify.app")) {
+    console.log("Request must come from https://publishbadge.netlify.app.", { received: originHeader });
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  // ---------------------------------
+  // Validate Request Method and Body
+  // ---------------------------------
   if (request.method !== "POST") {
     console.log("Received non-POST request.");
     return new Response("Method Not Allowed", { status: 405 });
@@ -49,27 +74,27 @@ export default async (request: Request, context: Context) => {
   // Parse form data using URLSearchParams.
   const params = new URLSearchParams(bodyText);
   let studentEmail = params.get("email");
-  let fullName = params.get("full_name");
   let badgeClassId = params.get("badge_class_id");
+  let accessCode = params.get("access_code");
 
   // Sanitize the inputs.
   if (studentEmail) {
     studentEmail = sanitizeEmail(studentEmail);
   }
-  if (fullName) {
-    fullName = sanitizeString(fullName);
-  }
   if (badgeClassId) {
     badgeClassId = badgeClassId.trim();
   }
+  if (accessCode) {
+    accessCode = sanitizeString(accessCode);
+  }
 
   console.log(
-    `Parsed and sanitized form data: email=${studentEmail}, full_name=${fullName}, badge_class_id=${badgeClassId}`
+    `Parsed and sanitized form data: email=${studentEmail}, badge_class_id=${badgeClassId}, access_code=${accessCode}`
   );
 
-  if (!studentEmail || !fullName || !badgeClassId) {
-    console.log("Missing email, full name, or badge_class_id after sanitation.");
-    return new Response("Missing email, full name, or badge_class_id.", { status: 400 });
+  if (!studentEmail  || !badgeClassId || !accessCode) {
+    console.log("Missing email, badge_class_id, or access_code after sanitation.");
+    return new Response("Missing required form data.", { status: 400 });
   }
 
   if (!isValidEmail(studentEmail)) {
@@ -77,13 +102,27 @@ export default async (request: Request, context: Context) => {
     return new Response("Invalid email format.", { status: 400 });
   }
 
-  // Validate badge_class_id.
-  if (!validBadgeClassIds.includes(badgeClassId)) {
+  // Validate badge_class_id using the course mapping.
+  const expectedCourseId = badgeClassToCourseId[badgeClassId];
+  if (!expectedCourseId) {
     console.log("Invalid badge_class_id provided.");
     return new Response("Invalid badge_class_id.", { status: 400 });
   }
 
+  // Validate the access code for the provided badge_class_id.
+  const expectedAccessCode = badgeClassToAccessCode[badgeClassId];
+  if (!expectedAccessCode) {
+    console.log("No access code mapping found for badge_class_id:", badgeClassId);
+    return new Response("Internal configuration error", { status: 500 });
+  }
+  if (accessCode !== expectedAccessCode) {
+    console.log("Invalid access code provided for badge_class_id:", badgeClassId);
+    return new Response("Invalid access code.", { status: 403 });
+  }
+
+  // ---------------------------------
   // Load Badgr credentials.
+  // ---------------------------------
   const BADGR_USERNAME = "courses@ibiology.org"; // Hardcoded in this example.
   const BADGR_PASSWORD = process.env.BADGR_PASSWORD;
 
@@ -103,7 +142,7 @@ export default async (request: Request, context: Context) => {
   };
 
   const tokenBody = new URLSearchParams();
-  tokenBody.append("username", "courses@ibiology.org");
+  tokenBody.append("username", BADGR_USERNAME);
   tokenBody.append("password", BADGR_PASSWORD);
 
   console.log(`Requesting access token from ${tokenUrl}...`);
@@ -145,7 +184,7 @@ export default async (request: Request, context: Context) => {
       hashed: true,
       type: "email",
       salt: "12345",
-    },
+    }
   };
 
   console.log(

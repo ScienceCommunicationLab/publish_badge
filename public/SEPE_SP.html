@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Get Your "Strategies for Effective Public Engagement" Badge</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <!-- Start Card -->
+        <div class="card shadow">
+          <div class="card-header text-center bg-primary text-white">
+            <h3>
+              <i class="bi bi-award me-2"></i>
+              "Let's Experiment" Completion <br/>Badge Request Form
+            </h3>
+            <p class="mb-0 small">Earn your badge today!</p>
+          </div>
+          <div class="card-body">
+            <form action="/.netlify/functions/publish_badge" method="POST" netlify>
+
+
+              <!-- Badge class for LE_SP -->
+              <input type="hidden" name="badge_class_id" value="HNPDHnahQpSJfHMkRFQY4g" />
+
+              <div class="mb-3">
+                <label for="email" class="form-label">
+                  Email Address <i class="bi bi-envelope"></i>
+                </label>
+                <input type="email" class="form-control" id="email" name="email" required>
+              </div>
+
+
+              <div class="mb-3">
+                <label for="access_code" class="form-label">
+                  Access Code <i class="bi bi-key"></i>
+                </label>
+                <input type="text" class="form-control" id="access_code" name="access_code" required>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-send me-2"></i>Submit
+              </button>
+            </form>
+
+          </div>
+          <div class="card-footer text-center">
+            <small>
+
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+  </script>
+</body>
+
+
+</html>
