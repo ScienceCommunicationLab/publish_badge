@@ -40,14 +40,14 @@ const badgeClassToCourseId: { [badgeClassId: string]: string } = {
 
 // Mapping from badge class ID to the expected access code for that course.
 const badgeClassToAccessCode: { [badgeClassId: string]: string } = {
-  "g_AMm-vOSC6q4_oB2EMwKw": "ACCESSCODE1", // PYSJ_SP
+  "g_AMm-vOSC6q4_oB2EMwKw": "PYSJ_415_GH",  // PYSJ_SP
   "HNPDHnahQpSJfHMkRFQY4g": "LE_628_BG",    // LE_SP
-  "o1tF48xdR0CKvJKgsHi2cw": "ACCESSCODE3", // BCLS_SP
-  "c87tAYNdSVWTlWijeG-HOg": "ACCESSCODE4", // SYR_SP
-  "I1Hjg23QT-KoWGAMwh99QA": "ACCESSCODE5", // SEPE_SP
-  "Ke0RMbahQVePBuxbjaAUwA": "ACCESSCODE6", // BYRC_SP
-  "q4zbMxLMRUetYmFLp023KA": "ACCESSCODE7", // CPECS_SP
-  "2DowutSbQaaBEKSxg2VNUQ": "ACCESSCODE8", // TSP_SP
+  "o1tF48xdR0CKvJKgsHi2cw": "BCLS_650_R6",  // BCLS_SP
+  "c87tAYNdSVWTlWijeG-HOg": "SRY_535_3K",   // SYR_SP
+  "I1Hjg23QT-KoWGAMwh99QA": "SEPE_6134_OG", // SEPE_SP
+  "Ke0RMbahQVePBuxbjaAUwA": "BYRC_523_RA",  // BYRC_SP
+  "q4zbMxLMRUetYmFLp023KA": "CPECS_061_S9",  // CPECS_SP
+  "2DowutSbQaaBEKSxg2VNUQ": "TSP_B05_05",   // TSP_SP
 };
 
 // Helper function to send an email via Postmark.
