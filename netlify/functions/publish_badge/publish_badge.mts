@@ -110,8 +110,8 @@ async function getGoogleSheetsAccessToken(): Promise<string> {
   return tokenResponse.token;
 }
 
-// Helper function to append a row to a Google Sheet.
-async function appendToGoogleSheet(fullName: string, email: string, badgeUrl: string): Promise<void> {
+// Updated helper function to append a row to a Google Sheet with an extra cell for the current time.
+async function appendToGoogleSheet(fullName: string, email: string, badgeUrl: string, timestamp: string): Promise<void> {
   const sheetId = process.env.GOOGLE_SHEET_ID;
   if (!sheetId) {
     throw new Error("Google Sheet ID is missing from configuration.");
@@ -120,11 +120,11 @@ async function appendToGoogleSheet(fullName: string, email: string, badgeUrl: st
   // Generate a valid access token using the service account credentials.
   const googleToken = await getGoogleSheetsAccessToken();
 
-  // Adjust the range (e.g., "Sheet1!A:C") according to your sheet.
-  const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A:C:append?valueInputOption=USER_ENTERED`;
+  // Adjust the range to include a fourth column (A:D) for the current time.
+  const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A:D:append?valueInputOption=USER_ENTERED`;
   const sheetPayload = {
     values: [
-      [fullName, email, badgeUrl]
+      [fullName, email, badgeUrl, timestamp]
     ]
   };
 
@@ -336,10 +336,11 @@ export default async (request: Request, context: Context) => {
   }
 
   // ---------------------------------
-  // Step 4: Add a row to Google Sheet with full_name, email, and badge URL
+  // Step 4: Add a row to Google Sheet with full_name, email, badge URL, and current time
   // ---------------------------------
   try {
-    await appendToGoogleSheet(fullName, studentEmail, openBadgeId);
+    const currentTime = new Date().toISOString();
+    await appendToGoogleSheet(fullName, studentEmail, openBadgeId, currentTime);
   } catch (e: any) {
     console.log(`Error updating Google Sheet: ${e.message}`);
     // Optionally, handle the sheet update failure.
