@@ -339,7 +339,7 @@ export default async (request: Request, context: Context) => {
   // Step 4: Add a row to Google Sheet with full_name, email, badge URL, and current time
   // ---------------------------------
   try {
-    const currentTime = new Date().toISOString();
+    const currentTime = new Date().toLocaleString();
     await appendToGoogleSheet(fullName, studentEmail, openBadgeId, currentTime);
   } catch (e: any) {
     console.log(`Error updating Google Sheet: ${e.message}`);
