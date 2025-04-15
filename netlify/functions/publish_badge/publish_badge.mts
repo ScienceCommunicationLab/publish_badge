@@ -47,7 +47,7 @@ const badgeClassToAccessCode: { [badgeClassId: string]: string } = {
   "I1Hjg23QT-KoWGAMwh99QA": "SEPE_6134_OG", // SEPE_SP
   "Ke0RMbahQVePBuxbjaAUwA": "BYRC_523_RA",  // BYRC_SP
   "q4zbMxLMRUetYmFLp023KA": "CPECS_061_S9",  // CPECS_SP
-  "2DowutSbQaaBEKSxg2VNUQ": "TSP_B05_05",   // TSP_SP
+  "2DowutSbQaaBEKSxg2VNUQ": "TSP_BR5_15",   // TSP_SP
 };
 
 // Helper function to send an email via Postmark.
