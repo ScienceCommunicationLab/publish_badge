@@ -36,6 +36,7 @@ const badgeClassToCourseId: { [badgeClassId: string]: string } = {
   "Ke0RMbahQVePBuxbjaAUwA": "11176634", // BYRC_SP
   "q4zbMxLMRUetYmFLp023KA": "11275476", // CPECS_SP
   "2DowutSbQaaBEKSxg2VNUQ": "11276029", // TSP_SP
+  "ornmaedRTceUKkxXJfcpJw": "12012339", // YCA_MU
 };
 
 // Mapping from badge class ID to the expected access code for that course.
@@ -48,6 +49,7 @@ const badgeClassToAccessCode: { [badgeClassId: string]: string } = {
   "Ke0RMbahQVePBuxbjaAUwA": "BYRC_523_RA",  // BYRC_SP
   "q4zbMxLMRUetYmFLp023KA": "CPECS_061_S9", // CPECS_SP
   "2DowutSbQaaBEKSxg2VNUQ": "TSP_BR5_15",   // TSP_SP
+  "ornmaedRTceUKkxXJfcpJw": "YCA_MU_514",  // YCA_MU
 };
 
 // Helper function to send an email via Postmark.
